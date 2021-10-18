@@ -5,10 +5,14 @@
  */
 package socket;
 
+import java.net.ServerSocket;
+
 /**
  *
  * @author 2dam
  */
-public class ServerSocket {
-    
+public class Server {
+     private final static int port = 5001;
+     
+     ServerSocket server = null;
 }
