@@ -1,5 +1,5 @@
 /*
- * This class will be used to connect with Data Base
+ * Esta clase será la encargada de gestionar las conexiones con la base de datos
  */
 package logic;
 
