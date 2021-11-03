@@ -16,7 +16,7 @@ public class DaoFactory {
      * Metodo que devuelve la implementacion del dao.
      * @return La implementacion del dao
      */
-    public Signable getDao(){
+    public static Signable getDao(){
         Signable dao = new DaoImplementation();
         return dao;    
     }
