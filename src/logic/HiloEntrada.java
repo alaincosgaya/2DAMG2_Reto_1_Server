@@ -74,6 +74,8 @@ public class HiloEntrada extends Thread {
             userResponse.setMessage(MessageType.SIGNUP_EXCEPTION);
             Logger.getLogger(HiloEntrada.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
+            int disconnect = 1;
+            App clientDisconnected = new App(disconnect);
             try {
                 out.writeObject(userResponse);
             } catch (IOException ex) {
