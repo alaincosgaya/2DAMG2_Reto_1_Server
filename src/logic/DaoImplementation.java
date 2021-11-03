@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import classes.UserInfo;
 import classes.User;
 import java.sql.Connection;
-import logic.Pool;
 
 /**
  * La implementacion del DAO con la cual se ejecutan las acciones solicitadas
@@ -16,8 +15,8 @@ import logic.Pool;
  *
  * @author Alain Cosgaya y Alejandro Gomez
  */
-public class DaoImplementation implements Signable{
-    
+public class DaoImplementation implements Signable {
+
     private Connection con = null;
     private PreparedStatement stmt = null;
     private final String signInUser = "CALL `login_validator`(?,?)";
@@ -32,8 +31,9 @@ public class DaoImplementation implements Signable{
      *
      * @param message Los datos introducidos por el usuario por validar.
      *
-     * @return Objeto tipo UserInfo con los datos del usuario y un mensaje de
-     * tipo enum con lo ocurrido a lo largo de la ejecucion del metodo.
+     * @return Objeto tipo User con los datos del usuario devueltos a la hora de
+     * hacer la ejecucion del metodo.
+     *
      *
      * @throws ConnectException
      *
@@ -42,15 +42,13 @@ public class DaoImplementation implements Signable{
      * @throws UpdateException
      */
     @Override
-    public User signIn(User message) throws ConnectException, SignInException, UpdateException {
+    public synchronized User signIn(User message) throws ConnectException, SignInException, UpdateException {
+
         User user;
         ResultSet rs = null;
-        /*try {
-          
-        } catch (SQLException e) {
-            throw new ConnectException("Error al intentar conectarse al servidor, intentelo mas tarde");
-        }*/
+        
         con = Pool.getInstance().getConnection();
+        
         try {
 
             stmt = con.prepareStatement(signInUser);
@@ -66,21 +64,22 @@ public class DaoImplementation implements Signable{
                 user.setPassword(rs.getString("users.password"));
 
             } else {
-                throw new SignInException("Los parametros introducidos no corresponden a ningún cliente");
+                throw new SignInException("Los parametros introducidos no corresponden a ningun cliente");
             }
         } catch (SQLException e) {
             throw new UpdateException("Error al intentar verificar los parametros en la base de datos");
 
-        }
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                throw new ConnectException("Error al intentar cerrar la conexion al servidor, intentelo mas tarde");
-            }
-            
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new ConnectException("Error al intentar cerrar la conexion al servidor, intentelo mas tarde");
+                }
 
+            }
         }
+
         return user;
     }
 
@@ -94,24 +93,21 @@ public class DaoImplementation implements Signable{
      * @param message Los datos introducidos por el usuario para su validacion y
      * registro.
      *
-     * @return Objeto tipo UserInfo con los datos del usuario y un mensaje de
-     * tipo enum con lo ocurrido a lo largo de la ejecucion del metodo.
-     * 
+     * @return Objeto tipo User con los datos del usuario devueltos a la hora de
+     * hacer la ejecucion del metodo.
+     *
      * @throws ConnectException
-     * 
+     *
      * @throws SignUpException
      *
      * @throws UpdateException
      */
     @Override
-    public User signUp(User message) throws ConnectException, SignUpException, UpdateException {
-        boolean existe;
+    public synchronized User signUp(User message) throws ConnectException, SignUpException, UpdateException {
+        
+
         ResultSet rs = null;
-       /* try {
-            
-        } catch (SQLException e) {
-            throw new ConnectException("Error al intentar conectarse al servidor, intentelo mas tarde");
-        }*/
+        
         con = Pool.getInstance().getConnection();
         try {
 
@@ -121,20 +117,20 @@ public class DaoImplementation implements Signable{
             stmt.setString(3, message.getFullName());
             stmt.setString(4, message.getPassword());
             rs = stmt.executeQuery();
-            existe = rs.getBoolean("existe");
-            if (existe) {
-                throw new SignUpException("El nombre de usuario o email corresponden a otro cliente");
-              
-            }
+            if (rs.next()) {
+                 throw new SignUpException("Los parametros introducidos corresponden a un cliente ya existente.");
+
+            } 
 
         } catch (SQLException e) {
             throw new UpdateException("Error al intentar registrar la conexión en la base de datos");
-        }
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                throw new ConnectException("Error al intentar cerrar la conexion al servidor, intentelo mas tarde");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new ConnectException("Error al intentar cerrar la conexion al servidor, intentelo mas tarde");
+                }
             }
         }
         return message;
