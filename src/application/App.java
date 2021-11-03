@@ -18,15 +18,14 @@ import logic.DaoFactory;
 import logic.DaoImplementation;
 import logic.HiloEntrada;
 
+
 /**
  *
  * @author 2dam
  */
 public class App {
 
-    /**
-     * @param args the command line arguments
-     */
+    
     private final static int port = 5001;
     private static int contador = 0;
 
@@ -66,5 +65,6 @@ public class App {
     public App(int desconectar) {
         contador = contador - desconectar;
     }
+
 
 }

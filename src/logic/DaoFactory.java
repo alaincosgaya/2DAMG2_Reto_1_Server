@@ -8,7 +8,7 @@ package logic;
 import classes.Signable;
 
 /**
- * La factoria del lado servidor
+ * La factoria del lado servidor.
  * @author Alain Cosgaya
  */
 public class DaoFactory {
@@ -20,4 +20,5 @@ public class DaoFactory {
         Signable dao = new DaoImplementation();
         return dao;    
     }
+
 }
