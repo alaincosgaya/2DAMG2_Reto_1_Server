@@ -3,7 +3,7 @@
  */
 package logic;
 
-
+import exceptions.ConnectException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -21,9 +21,9 @@ public class Pool {
     private static final Logger LOGGER = Logger.getLogger(Pool.class.getName());
     /**
      * Creamos un Stack, para poder almacenar las conexiones y así poder
-     * controlarlas
+     * controlarlas.
      */
-    Stack<Pool> p = new Stack<Pool>();
+    Stack<Connection> p = new Stack<>();
 
     private final ResourceBundle configFile;
     private final String driverBD;
@@ -31,18 +31,18 @@ public class Pool {
     private final String userBD;
     private final String contraBD;
     /**
-     * Utilizaremos el parametro conexion para abrir o cerrar la conexion
+     * Utilizaremos el parametro conexion para abrir o cerrar la conexion.
      */
     private Connection conexion;
 
     /**
      * Utilizaremos el parametro pool para poder instanciar la clase cuando
-     * vallamos a conectarnos a la base de datos
+     * vayamos a conectarnos a la base de datos.
      */
     private static Pool pool;
 
     /**
-     * Metodo con el que haremos la conexion con la base de datos Además,
+     * Metodo con el que haremos la conexion con la base de datos. Además,
      * añadiremos al Stack la conexión
      */
     private Pool() {
@@ -77,31 +77,37 @@ public class Pool {
      *
      * @return conexion
      */
-    public Connection getConnection() {
+    public Connection getConnection() throws ConnectException {
         if (p.size() != 0) {
             LOGGER.info("Se obtiene una conexion ya existente");
-            p.pop().getConnection();
+            conexion = p.pop();
         } else {
             try {
                 LOGGER.info("Se abre la conexion con la base de datos y se establece la conexion");
                 conexion = (Connection) DriverManager.getConnection(this.urlBD, this.userBD, this.contraBD);
             } catch (SQLException e) {
-                System.out.println("Error al intentar abrir la BD");
+                throw new ConnectException("Error al intentar abrir la BD");
             }
 
         }
         return conexion;
     }
+
     /**
      * Metodo para cerrar la conexion a la base de datos
      *
      * @throws SQLException
      */
-    public void closeConnection() throws SQLException {
-        if (conexion != null) {
-            p.push(pool);
-            LOGGER.info("Se guarda la conexion y se cierra con al base de datos");
-            conexion.close();
+    public void closeConnection() throws ConnectException {
+        try {
+            if (conexion != null) {
+                p.push(conexion);
+                LOGGER.info("Se guarda la conexion y se cierra con al base de datos");
+                conexion.close();
+            }
+        } catch (SQLException e) {
+            throw new ConnectException("Error al intentar cerrar la BD");
         }
+
     }
 }
