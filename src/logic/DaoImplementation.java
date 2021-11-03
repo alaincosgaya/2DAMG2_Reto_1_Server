@@ -16,7 +16,8 @@ import java.sql.Connection;
  * @author Alain Cosgaya y Alejandro Gomez
  */
 public class DaoImplementation implements Signable {
-
+    
+    private Pool pool = Pool.getInstance();
     private Connection con = null;
     private PreparedStatement stmt = null;
     private final String signInUser = "CALL `login_validator`(?,?)";
@@ -47,7 +48,7 @@ public class DaoImplementation implements Signable {
         User user;
         ResultSet rs = null;
         
-        con = Pool.getInstance().getConnection();
+        con = pool.getConnection();
         
         try {
 
@@ -108,7 +109,7 @@ public class DaoImplementation implements Signable {
 
         ResultSet rs = null;
         
-        con = Pool.getInstance().getConnection();
+        con = pool.getConnection();
         try {
 
             stmt = con.prepareStatement(signUpUser);
