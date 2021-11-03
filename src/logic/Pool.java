@@ -23,6 +23,7 @@ public class Pool {
      * Creamos un Stack, para poder almacenar las conexiones y así poder
      * controlarlas.
      */
+    
     Stack<Connection> p = new Stack<>();
 
     private final ResourceBundle configFile;
